@@ -24,11 +24,22 @@ namespace WebApp_UnderTheHood
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication("MyCookieAuth").AddCookie("MyCookieAuth", options => {
+            services.AddAuthentication("MyCookieAuth").AddCookie("MyCookieAuth", options =>
+            {
                 options.Cookie.Name = "MyCookieAuth";
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("MustBelongToHRDepartment", policy => policy.RequireClaim("Department", "HR"));
+                options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
+                options.AddPolicy("HRManagerOnly", policy => policy
+                .RequireClaim("Department", "HR")
+                .RequireClaim("Manager"));
             });
             services.AddRazorPages();
-         
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
